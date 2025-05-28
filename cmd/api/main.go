@@ -11,9 +11,12 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+	if err := godotenv.Load(".env"); err != nil {
+		log.Print("Error loading .env file")
+	}else{
+		log.Print(".env loaded")
 	}
+	
 
 	port := env.GetString("PORT", ":3000")
 
@@ -29,5 +32,7 @@ func main() {
 
 	handlers.NewEventHandler(server.Group("/event"),eventRepository)
 
-	app.Listen(port)
+	if err := app.Listen(port); err != nil {
+        log.Fatal(err)
+    }
 }
