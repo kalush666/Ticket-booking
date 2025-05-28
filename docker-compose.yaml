@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   app:
     tty: true
@@ -40,8 +38,8 @@ services:
       timeout: 5s
       retries: 5
 
-  networks:
-    application:
+networks:
+  application:
 
-  volumes:
-    postgres-db:
+volumes:
+  postgres-db:

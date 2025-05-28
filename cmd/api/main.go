@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,7 +26,7 @@ func main() {
 
 	handlers.NewEventHandler(server.Group("/event"),eventRepository)
 
-	if err := app.Listen(":3030"); err != nil {
-        log.Fatal(err)
-    }
+	if err := app.Listen(fmt.Sprintf(":%s", envconfig.ServerPort)); err != nil {
+		log.Fatal(err)
+	}
 }
