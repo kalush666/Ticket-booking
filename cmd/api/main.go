@@ -4,35 +4,28 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
-	"github.com/kalush66/ticket-booking-project-v1/env"
+	"github.com/kalush66/ticket-booking-project-v1/config"
+	"github.com/kalush66/ticket-booking-project-v1/db"
 	"github.com/kalush66/ticket-booking-project-v1/handlers"
 	"github.com/kalush66/ticket-booking-project-v1/repositories"
 )
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Print("Error loading .env file")
-	}else{
-		log.Print(".env loaded")
-	}
-	
-
-	port := env.GetString("PORT", ":3000")
-
+	envconfig := config.NewEnvConfig()
+	db := db.Init(envconfig,db.DBMigrator)
 
 	 app := fiber.New(fiber.Config{
 		AppName: "Ticket Booking API",
 		ServerHeader: "Fiber",
 	}) 
 
-	eventRepository := repositories.NewEventRepository(nil)
+	eventRepository := repositories.NewEventRepository(db)
 
 	server := app.Group("/api")
 
 	handlers.NewEventHandler(server.Group("/event"),eventRepository)
 
-	if err := app.Listen(port); err != nil {
+	if err := app.Listen(":3030"); err != nil {
         log.Fatal(err)
     }
 }
