@@ -17,7 +17,6 @@ func (r *EventRepository) GetMany(ctx context.Context) ([]*models.Event, error) 
 	if res := r.db.Model(&models.Event{}).Find(&events); res.Error != nil{
 		return nil,res.Error
 	}
-	
 	return events,nil
 }
 
