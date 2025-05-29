@@ -138,14 +138,14 @@ func (h *EventHandler) DeleteOne(ctx *fiber.Ctx) error{
 
 
 
-func NewEventHandler(router fiber.Router,repository models.EventRepository){
-	handler := &EventHandler{
-		repository: repository,
-	}
+func NewEventHandler(router fiber.Router, repository models.EventRepository) {
+    handler := &EventHandler{
+        repository: repository,
+    }
 
-	router.Get("/",handler.GetMany)
-	router.Get("/", handler.CreateOne)
-	router.Get("/:eventId",handler.GetOne)
-	router.Put("/:eventId", handler.UpdateOne)
-	router.Delete("/:eventId",handler.DeleteOne)
+    router.Get("/", handler.GetMany)
+    router.Post("/", handler.CreateOne)
+    router.Get("/:eventId", handler.GetOne)
+    router.Put("/:eventId", handler.UpdateOne)
+    router.Delete("/:eventId", handler.DeleteOne)
 }

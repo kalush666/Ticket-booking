@@ -6,12 +6,12 @@ import (
 )
 
 type Event struct {
-	ID       uint `json:"id" gorm:"primarykey"`
-	Name     string `json:"name"`
-	Location string `json:"location"`
-	Date     time.Time `json:"date"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+    ID        uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+    Name      string    `json:"name"`
+    Location  string    `json:"location"`
+    Date      time.Time `json:"date"`
+    CreatedAt time.Time `json:"createdAt"`
+    UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type EventRepository interface {
