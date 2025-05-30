@@ -21,6 +21,6 @@ type TicketRepository interface {
 	UpdateOne(ctx context.Context, ticketId uint, updateData map[string]interface{}) (*Ticket, error)
 }
 
-type ValidateTicket struct{
-	TicketId uint `json:"ticketId"`
+type ValidateTicket struct {
+	TicketId int `json:"ticketId"`
 }

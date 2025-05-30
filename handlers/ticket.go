@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -84,37 +85,55 @@ func (h *TicketHandler) CreateOne(ctx *fiber.Ctx) error {
 }
 
 func (h *TicketHandler) ValidateOne(ctx *fiber.Ctx) error {
-	context,cancel := context.WithTimeout(context.Background(),time.Duration(5*time.Second))
+	context, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
 	defer cancel()
 
 	validateBody := &models.ValidateTicket{}
 
+	if ctx.Get("Content-Type") != "application/json" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"status":  "fail",
+			"message": "Content-Type must be application/json",
+			"data":    nil,
+		})
+	}
+
 	if err := ctx.BodyParser(validateBody); err != nil {
+		fmt.Printf("BodyParser error: %v\n", err)
+		fmt.Printf("Raw body: %s\n", string(ctx.Body()))
+		
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(&fiber.Map{
-			"status" : "fail",
-			"message": err.Error(),
-			"data": nil,
+			"status":  "fail",
+			"message": fmt.Sprintf("Failed to parse request body: %v", err),
+			"data":    nil,
+		})
+	}
+
+	if validateBody.TicketId <= 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"status":  "fail",
+			"message": "ticketId is required and must be greater than 0",
+			"data":    nil,
 		})
 	}
 
 	validateData := make(map[string]interface{})
-
 	validateData["entered"] = true
 
-	ticket,err := h.repository.UpdateOne(context,validateBody.TicketId,validateData)
+	ticket, err := h.repository.UpdateOne(context, uint(validateBody.TicketId), validateData)
 
-	if  err != nil {
+	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
-			"status" : "fail",
+			"status":  "fail",
 			"message": err.Error(),
-			"data": nil,
+			"data":    nil,
 		})
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(&fiber.Map{
-		"status": "success",
+		"status":  "success",
 		"message": "Ticket validated successfully",
-		"data": ticket,
+		"data":    ticket,
 	})
 }
 
