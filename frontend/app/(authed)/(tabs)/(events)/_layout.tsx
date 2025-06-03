@@ -1,73 +1,11 @@
-import TabBarIcon from "@/components/navigation/TabBarIcon";
-import { Tabs } from "expo-router";
-import { ComponentProps } from "react";
-import { Text } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { Stack } from "expo-router";
 
-export default function TabLayout() {
-  const tabs = [
-    {
-      showFor: [],
-      name: "(events)",
-      displayName: "Events",
-      icon: "calendar-outline",
-      options: {
-        headerShown: false,
-      },
-    },
-    {
-      showFor: [],
-      name: "(tickets)",
-      displayName: "My Tickets",
-      icon: "ticket-outline",
-      options: {
-        headerShown: false,
-      },
-    },
-    {
-      showFor: [],
-      name: "scan-ticket",
-      displayName: "Scan Ticket",
-      icon: "scan-outline",
-      options: {
-        headerShown: true,
-      },
-    },
-    {
-      showFor: [],
-      name: "settings",
-      displayName: "Settings",
-      icon: "settings-outline",
-      options: {
-        headerShown: true,
-      },
-    },
-  ];
-
+export default function EventsLayout() {
   return (
-    <Tabs>
-      {tabs.map((tab) => (
-        <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            ...tab.options,
-            headerTitle: tab.displayName,
-            //href: tab.showFor.includes()
-            tabBarLabel: ({ focused }) => (
-              <Text style={{ color: focused ? "black" : "gray" }}>
-                {tab.displayName}
-              </Text>
-            ),
-            tabBarIcon: ({ focused }) => (
-              <TabBarIcon
-                name={tab.icon as ComponentProps<typeof Ionicons>["name"]}
-                color={focused ? "black" : "gray"}
-              />
-            ),
-          }}
-        />
-      ))}
-    </Tabs>
+    <Stack screenOptions={{ headerBackTitle: "Events" }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="new" />
+      <Stack.Screen name="event/[id]" />
+    </Stack>
   );
 }
