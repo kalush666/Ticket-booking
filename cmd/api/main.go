@@ -8,6 +8,7 @@ import (
 	"github.com/kalush66/ticket-booking-project-v1/config"
 	"github.com/kalush66/ticket-booking-project-v1/db"
 	"github.com/kalush66/ticket-booking-project-v1/handlers"
+	"github.com/kalush66/ticket-booking-project-v1/middlewares"
 	"github.com/kalush66/ticket-booking-project-v1/repositories"
 	"github.com/kalush66/ticket-booking-project-v1/services"
 )
@@ -30,10 +31,10 @@ func main() {
 	server := app.Group("/api")
 	handlers.NewAuthHandler(server.Group("/auth"), authService)
 
-	privateRoutes := server.Use(middleware.AuthProtected(db))
+	privateRoutes := server.Use(middlewares.AuthProtected(db))
 
-	handlers.NewEventHandler(server.Group("/event"),eventRepository)
-	handlers.NewTicketHandler(server.Group("/ticket"),ticketRepository)
+	handlers.NewEventHandler(privateRoutes.Group("/event"),eventRepository)
+	handlers.NewTicketHandler(privateRoutes.Group("/ticket"),ticketRepository)
 
 	if err := app.Listen(fmt.Sprintf(":%s", envconfig.ServerPort)); err != nil {
 		log.Fatal(err)

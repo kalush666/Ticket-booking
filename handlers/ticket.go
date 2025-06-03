@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/kalush66/ticket-booking-project-v1/models"
+	"github.com/skip2/go-qrcode"
 )
 
 type TicketHandler struct {
@@ -19,7 +20,9 @@ func (h *TicketHandler) GetMany(ctx *fiber.Ctx) error {
 	context,cancel := context.WithTimeout(context.Background(),time.Duration(5*time.Second))
 	defer cancel()
 
-	ticket,err := h.repository.GetMany(context)
+	userId := uint(ctx.Locals("userId").(float64))
+
+	ticket,err := h.repository.GetMany(context,userId)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadGateway).JSON(&fiber.Map{
@@ -39,8 +42,11 @@ func (h *TicketHandler) GetOne(ctx *fiber.Ctx) error {
 	context,cancel := context.WithTimeout(context.Background(),time.Duration(5*time.Second))
 	defer cancel()
 
+	
 	ticketId,_ := strconv.Atoi(ctx.Params("ticketId"))
-	ticket,err := h.repository.GetOne(context,uint(ticketId))
+	userId := uint(ctx.Locals("userId").(float64))
+
+	ticket,err := h.repository.GetOne(context,uint(ticketId),userId)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(&fiber.Map{
@@ -49,10 +55,27 @@ func (h *TicketHandler) GetOne(ctx *fiber.Ctx) error {
 		})
 	}
 
+	var QRCode []byte 
+	QRCode,err =  qrcode.Encode(
+		fmt.Sprintf("ticketId:%v","ownerId:%v",ticketId,userId),
+		qrcode.Medium,
+		256,
+	)
+
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"status" : "fail",
+			"message": err.Error(),
+		})
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"status": "success",
 		"message": "Ticket fetched successfully",
-		"data": ticket,
+		"data": &fiber.Map{
+			"ticket":ticket,
+			"QRCode": QRCode,
+		},
 	})
 }
 
@@ -61,6 +84,7 @@ func (h *TicketHandler) CreateOne(ctx *fiber.Ctx) error {
 	defer cancel()
 
 	ticket := &models.Ticket{}
+	userId := uint(ctx.Locals("userId").(float64))
 
 	if err := ctx.BodyParser(ticket); err != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(&fiber.Map{
@@ -69,7 +93,7 @@ func (h *TicketHandler) CreateOne(ctx *fiber.Ctx) error {
 		})
 	}
 
-	ticketRes,err := h.repository.CreateOne(context,ticket)
+	ticketRes,err := h.repository.CreateOne(context,ticket,userId)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
 			"status" : "fail",
@@ -120,7 +144,7 @@ func (h *TicketHandler) ValidateOne(ctx *fiber.Ctx) error {
 	validateData := make(map[string]interface{})
 	validateData["entered"] = true
 
-	ticket, err := h.repository.UpdateOne(context, uint(validateBody.TicketId), validateData)
+	ticket, err := h.repository.UpdateOne(context, validateBody.TicketId,validateBody.OwnerId ,validateData)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
