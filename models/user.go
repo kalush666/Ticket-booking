@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type UserRole string
 
@@ -10,12 +13,12 @@ const (
 )
 
 type User struct {
-	ID        uint     `json:"id" gorm:"primaryKey;autoIncrement"`
-	Email     string   `json:"email" gorm:"uniqueIndex;not null"`
-	Role      UserRole `json:"role" gorm:"text;default:'attendee';not null"`
-	Password  string   `json:"-" gorm:"not null"`
-	CreatedAt string   `json:"createdAt" gorm:"autoCreateTime"`
-	UpdatedAt string   `json:"updatedAt" gorm:"autoUpdateTime"`
+    ID        uint      `json:"id" gorm:"primaryKey;autoIncrement"`
+    Email     string    `json:"email" gorm:"uniqueIndex;not null"`
+    Role      UserRole  `json:"role" gorm:"text;default:'attendee';not null"`
+    Password  string    `json:"-" gorm:"not null"`
+    CreatedAt time.Time `json:"createdAt"`
+    UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (u *User) AfterCreate(db *gorm.DB) error{

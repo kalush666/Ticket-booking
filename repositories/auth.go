@@ -12,18 +12,22 @@ type AuthRepository struct {
 }
 
 func (r *AuthRepository) RegisterUser(ctx context.Context, registerData *models.AuthCredentials) (*models.User, error) {
-	user := &models.User{
-		Email:    registerData.Email,
-		Password: registerData.Password,
-	}
+    user := &models.User{
+        Email:    registerData.Email,
+        Password: registerData.Password,
+    }
 
-	res := r.db.Model(&models.User{}).Create(user)
+    res := r.db.Model(&models.User{}).Create(user)
+    if res.Error != nil {
+        return nil, res.Error
+    }
 
-	if res.Error != nil {
-		return nil, res.Error
-	}
+    var createdUser models.User
+    if err := r.db.First(&createdUser, user.ID).Error; err != nil {
+        return nil, err
+    }
 
-	return user, nil
+    return &createdUser, nil
 }
 
 func (r *AuthRepository) GetUser(ctx context.Context, query interface{}, args ...interface{}) (*models.User, error) {
